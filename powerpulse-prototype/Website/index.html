@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PowerPulse | Energy intelligence prototype</title>
+  <meta name="description" content="PowerPulse is a mobile energy coaching prototype that turns appliance usage into savings, peak alerts, and reward-driven behavior." />
+  <meta name="keywords" content="PowerPulse, energy app, prototype, Expo, React Native, energy insights, peak alerts, rewards" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0e27;
+      --surface: rgba(13, 24, 50, 0.94);
+      --surface-strong: rgba(255, 255, 255, 0.08);
+      --border: rgba(102, 204, 153, 0.12);
+      --text: #e8f5ff;
+      --muted: #94b3d9;
+      --accent: #10b981;
+      --accent-strong: #06d6a0;
+      --shadow: 0 35px 100px rgba(0, 20, 40, 0.4);
+      --glow: rgba(16, 185, 129, 0.15);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(34, 211, 238, 0.12), transparent 26%),
+        linear-gradient(180deg, #0f1729 0%, #070d1a 100%);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button, .button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .container {
+      width: min(1200px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 24px 0 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 18px 0 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #06d6a0;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      color: #cbd5e1;
+      font-size: 0.95rem;
+      transition: color 200ms ease, transform 200ms ease;
+    }
+
+    .nav a:hover {
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 36px;
+      align-items: center;
+      padding: 64px 0 36px;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 25% 20%, rgba(16, 185, 129, 0.14), transparent 28%),
+        radial-gradient(circle at 85% 15%, rgba(6, 214, 160, 0.12), transparent 22%);
+      pointer-events: none;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      max-width: 620px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      font-size: 0.78rem;
+      margin-bottom: 18px;
+      color: #94a3b8;
+      opacity: 0.9;
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: clamp(2.8rem, 6vw, 4.8rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+      max-width: 13ch;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    }
+
+    .hero-text {
+      margin: 28px 0 34px;
+      max-width: 680px;
+      color: #d8e2ff;
+      font-size: 1.05rem;
+      line-height: 1.75;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .button--primary,
+    .button--secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 999px;
+      padding: 16px 28px;
+      font-weight: 700;
+      min-height: 56px;
+      border: 1px solid transparent;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      text-decoration: none;
+    }
+
+    .button--primary {
+      background: linear-gradient(135deg, #10b981, #06d6a0);
+      color: #070d1a;
+      box-shadow: 0 22px 50px rgba(16, 185, 129, 0.26);
+    }
+
+    .button--secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.14);
+      color: #e2e8f0;
+      backdrop-filter: blur(16px);
+    }
+
+    .button--primary:hover,
+    .button--secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 60px rgba(16, 185, 129, 0.24);
+    }
+
+    .hero-preview {
+      position: relative;
+      align-self: start;
+      z-index: 1;
+    }
+
+    .preview-card {
+      position: relative;
+      border-radius: 40px;
+      padding: 32px;
+      background: rgba(8, 13, 24, 0.96);
+      border: 1.5px solid rgba(16, 185, 129, 0.18);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 430px;
+    }
+
+    .preview-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 55%);
+      pointer-events: none;
+    }
+
+    .preview-background {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.16), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(6, 214, 160, 0.1), transparent 32%);
+      pointer-events: none;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      padding: 10px 16px;
+      border-radius: 999px;
+      color: #a7f3d0;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.32);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .preview-title {
+      margin: 0 0 8px;
+      font-size: 1.65rem;
+      letter-spacing: -0.03em;
+    }
+
+    .preview-value {
+      font-size: 3.6rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      margin: 0;
+      color: #ffffff;
+    }
+
+    .preview-meta {
+      color: #94a3b8;
+      margin-top: 10px;
+      font-size: 0.98rem;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .preview-stat {
+      padding: 20px;
+      border-radius: 26px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .preview-stat:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .preview-stat strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 1.18rem;
+      color: #ffffff;
+    }
+
+    .section {
+      padding: 80px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .section:first-of-type {
+      border-top: 0;
+    }
+
+    .section-header {
+      max-width: 720px;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 3vw, 3.2rem);
+      margin: 0;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .section-copy {
+      margin-top: 20px;
+      color: #cbd5e1;
+      font-size: 1.02rem;
+      max-width: 760px;
+      line-height: 1.75;
+    }
+
+    .section--dark {
+      background: rgba(255, 255, 255, 0.02);
+      border-top-color: rgba(255, 255, 255, 0.04);
+    }
+
+    .feature-grid,
+    .work-grid,
+    .stack-grid,
+    .benefits-grid,
+    .testimonial-grid,
+    .faq-grid,
+    .demo-grid {
+      margin-top: 36px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .feature-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .feature-card,
+    .work-card,
+    .stack-card,
+    .benefit-card,
+    .testimonial-card,
+    .faq-card,
+    .demo-card {
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 28px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
+      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+    }
+
+    .feature-card:hover,
+    .work-card:hover,
+    .stack-card:hover,
+    .benefit-card:hover,
+    .testimonial-card:hover,
+    .faq-card:hover,
+    .demo-card:hover {
+      transform: translateY(-4px);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(16, 185, 129, 0.22);
+    }
+
+    .feature-card h3,
+    .work-card h3,
+    .stack-card h3,
+    .benefit-card h3,
+    .testimonial-card h3,
+    .faq-card h3,
+    .demo-card h3 {
+      margin: 0 0 18px;
+      font-size: 1.2rem;
+    }
+
+    .feature-card p,
+    .work-card p,
+    .stack-card p,
+    .benefit-card p,
+    .testimonial-card p,
+    .faq-card p,
+    .demo-card p {
+      margin: 0;
+      color: #cbd5e1;
+      line-height: 1.75;
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: stretch;
+      margin-top: 32px;
+    }
+
+    .quote-banner {
+      border-radius: 32px;
+      padding: 38px;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.16), rgba(13, 24, 50, 0.92));
+      border: 1px solid rgba(16, 185, 129, 0.24);
+      color: #f8fbff;
+      box-shadow: 0 22px 44px rgba(11, 22, 53, 0.18);
+    }
+
+    .quote-banner p {
+      margin: 0;
+      font-size: 1.08rem;
+      line-height: 1.9;
+    }
+
+    .quote-banner strong {
+      display: block;
+      margin-top: 16px;
+      font-size: 0.97rem;
+      color: #c7d2fe;
+    }
+
+    .stack-grid {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .stack-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #dbeafe;
+      margin-top: 16px;
+    }
+
+    .demo-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .demo-card {
+      position: relative;
+      padding: 20px;
+      overflow: hidden;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(13, 24, 50, 0.96), rgba(8, 16, 32, 0.88));
+      border: 1.5px solid rgba(16, 185, 129, 0.2);
+      border-radius: 32px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 20px 50px rgba(0, 0, 0, 0.2);
+    }
+
+    .demo-card h3 {
+      position: relative;
+      z-index: 2;
+      margin: 0 0 16px;
+      font-size: 1.15rem;
+      color: #ffffff;
+    }
+
+    .demo-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08), transparent 50%);
+      pointer-events: none;
+    }
+
+    .demo-card::after {
+      content: '';
+      position: absolute;
+      inset: 20px 20px auto;
+      height: 200px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.85;
+    }
+
+    .demo-card:nth-child(1)::after {
+      background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22200%22 viewBox=%220 0 300 200%22%3E%3Crect fill=%22%231a2642%22 width=%22300%22 height=%22200%22 rx=%2216%22/%3E%3Crect x=%2220%22 y=%2220%22 width=%22260%22 height=%2240%22 fill=%22%2310b981%22 opacity=%220.15%22 rx=%228%22/%3E%3Ctext x=%2230%22 y=%2245%22 font-family=%22Arial%22 font-size=%2212%22 fill=%22%2306d6a0%22%3ELive Home Energy%3C/text%3E%3Crect x=%2220%22 y=%2270%22 width=%22260%22 height=%2290%22 fill=%22%23ffffff%22 opacity=%220.05%22 rx=%228%22/%3E%3Ctext x=%2230%22 y=%2290%22 font-family=%22Arial%22 font-size=%2214%22 font-weight=%22bold%22 fill=%22%23e8f5ff%22%3E4.2 kWh%3C/text%3E%3Ctext x=%2230%22 y=%22110%22 font-family=%22Arial%22 font-size=%2210%22 fill=%22%2394b3d9%22%3EDaily Usage%3C/text%3E%3Crect x=%2220%22 y=%22130%22 width=%22120%22 height=%2220%22 fill=%22%2310b981%22 opacity=%220.2%22 rx=%224%22/%3E%3Crect x=%22160%22 y=%22130%22 width=%22120%22 height=%2220%22 fill=%22%2310b981%22 opacity=%220.2%22 rx=%224%22/%3E%3C/svg%3E');
+    }
+
+    .demo-card:nth-child(2)::after {
+      background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22200%22 viewBox=%220 0 300 200%22%3E%3Crect fill=%22%231a2642%22 width=%22300%22 height=%22200%22 rx=%2216%22/%3E%3Crect x=%2220%22 y=%2220%22 width=%22260%22 height=%2240%22 fill=%22%23f97316%22 opacity=%220.15%22 rx=%228%22/%3E%3Ctext x=%2230%22 y=%2245%22 font-family=%22Arial%22 font-size=%2212%22 fill=%22%23f97316%22%3EPeak Challenge%3C/text%3E%3Crect x=%2220%22 y=%2270%22 width=%22260%22 height=%2290%22 fill=%22%23ffffff%22 opacity=%220.05%22 rx=%228%22/%3E%3Ctext x=%2230%22 y=%2290%22 font-family=%22Arial%22 font-size=%2214%22 font-weight=%22bold%22 fill=%22%23e8f5ff%22%3EReduce Load Now%3C/text%3E%3Ctext x=%2230%22 y=%22110%22 font-family=%22Arial%22 font-size=%2210%22 fill=%22%2294b3d9%22%3EEarn 50 points%3C/text%3E%3Crect x=%2220%22 y=%22130%22 width=%22120%22 height=%2220%22 fill=%22%23f97316%22 opacity=%220.3%22 rx=%224%22/%3E%3Crect x=%22160%22 y=%22130%22 width=%22120%22 height=%2220%22 fill=%22%231e40af%22 opacity=%220.3%22 rx=%224%22/%3E%3C/svg%3E');
+    }
+
+    .demo-card:nth-child(3)::after {
+      background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22200%22 viewBox=%220 0 300 200%22%3E%3Crect fill=%22%231a2642%22 width=%22300%22 height=%22200%22 rx=%2216%22/%3E%3Crect x=%2220%22 y=%2220%22 width=%22260%22 height=%2240%22 fill=%22%236366f1%22 opacity=%220.15%22 rx=%228%22/%3E%3Ctext x=%2230%22 y=%2245%22 font-family=%22Arial%22 font-size=%2212%22 fill=%226366f1%22%3EEnergy Insights%3C/text%3E%3Ccircle cx=%22100%22 cy=%22120%22 r=%2230%22 fill=%22%2310b981%22 opacity=%220.2%22/%3E%3Ccircle cx=%22200%22 cy=%22120%22 r=%2230%22 fill=%22%236366f1%22 opacity=%220.2%22/%3E%3Ccircle cx=%22150%22 cy=%22160%22 r=%2220%22 fill=%22%23f97316%22 opacity=%220.2%22/%3E%3Ctext x=%22240%22 y=%2290%22 font-family=%22Arial%22 font-size=%229%22 fill=%22%2394b3d9%22%3E48%25%3C/text%3E%3Ctext x=%22240%22 y=%22130%22 font-family=%22Arial%22 font-size=%229%22 fill=%22%2394b3d9%22%3E32%25%3C/text%3E%3Ctext x=%22220%22 y=%22160%22 font-family=%22Arial%22 font-size=%229%22 fill=%22%2394b3d9%22%3E20%25%3C/text%3E%3C/svg%3E');
+    }
+
+    .testimonial-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+
+    .testimonial-meta {
+      margin-top: 16px;
+      display: grid;
+      gap: 4px;
+      color: #b9c8f4;
+      font-size: 0.95rem;
+    }
+
+    .faq-grid {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .footer {
+      padding: 56px 0 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: grid;
+      gap: 28px;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .footer .brand {
+      margin: 0;
+      font-size: 0.95rem;
+      letter-spacing: 0.24em;
+      color: #06d6a0;
+    }
+
+    .social-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .social-links a {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      transition: color 180ms ease;
+    }
+
+    .social-links a:hover {
+      color: #ffffff;
+    }
+
+    .newsletter {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      color: #cbd5e1;
+    }
+
+    .newsletter a {
+      color: #ffffff;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    @media (max-width: 960px) {
+      .hero,
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        gap: 28px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .hero {
+        padding-top: 42px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .hero-title {
+        font-size: 2.4rem;
+      }
+
+      .preview-grid,
+      .feature-grid,
+      .work-grid,
+      .stack-grid,
+      .benefits-grid,
+      .testimonial-grid,
+      .faq-grid,
+      .demo-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        padding: 48px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div class="brand">PowerPulse</div>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#about">About</a>
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#tech">Stack</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">Energy intelligence</span>
+        <h1 class="hero-title">PowerPulse makes energy habits visible, engaging, and easy to improve.</h1>
+        <p class="hero-text">
+          Built as a mobile prototype, PowerPulse transforms appliance usage into daily insights, peak event guidance, and reward-driven savings.
+          This modern energy experience helps users reduce consumption and stay motivated with real-time feedback.
+        </p>
+        <div class="hero-actions">
+          <a class="button button--primary" href="#features">Explore features</a>
+          <a class="button button--secondary" href="#demo">See demo</a>
+        </div>
+      </div>
+      <div class="hero-preview">
+        <div class="preview-card">
+          <div class="preview-background"></div>
+          <span class="status-chip">Peak alert active</span>
+          <h2 class="preview-title">Live home energy</h2>
+          <p class="preview-meta">Daily usage, appliance load, and cost projection in one screen.</p>
+          <p class="preview-value">4.2 kWh</p>
+          <div class="preview-grid">
+            <div class="preview-stat">
+              <span>Current load</span>
+              <strong>1.5 kW</strong>
+            </div>
+            <div class="preview-stat">
+              <span>Cost forecast</span>
+              <strong>€2.63</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="section-header">
+        <span class="eyebrow">About PowerPulse</span>
+        <h2 class="section-title">A compelling prototype for smarter home energy behavior.</h2>
+      </div>
+      <p class="section-copy">
+        PowerPulse is designed to make energy consumption intuitive and user-friendly. The app uses appliance-level tracking, cost estimates, and simulated peak events to help users spot waste,
+        reduce load, and earn progress-based rewards. It is a strong fit for energy demo experiences, consumer testing, and hackathon presentations.
+      </p>
+      <div class="two-column">
+        <div class="quote-banner">
+          <p>"Emerging energy applications need a design that feels less like a dashboard and more like a helpful coach. PowerPulse does exactly that."</p>
+          <strong>— Product & energy experience designer</strong>
+        </div>
+        <div class="quote-banner">
+          <p>"From appliance insights to peak alerts, this prototype turns complex grid behavior into a simple daily habit for users."</p>
+          <strong>— Smart home innovation lead</strong>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section section--dark">
+      <div class="section-header">
+        <span class="eyebrow">Features</span>
+        <h2 class="section-title">Built to showcase energy efficiency with clarity and engagement.</h2>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <h3>Appliance-level visibility</h3>
+          <p>Track each device’s wattage and active time so users know exactly what is using power in real time.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Usage-driven insights</h3>
+          <p>Daily load totals, estimated cost, and top-consuming appliances are derived from live simulation data.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Peak event simulation</h3>
+          <p>Challenge users to reduce their load during simulated peak windows, making energy savings feel actionable.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Reward mechanics</h3>
+          <p>Points, streaks, and badges motivate ongoing engagement while reinforcing good energy habits.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Modern mobile-first UI</h3>
+          <p>Designed with a polished dark interface, clear typography, and accessible layout for fast interaction.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Persistent experience</h3>
+          <p>State is stored locally, so progress and appliance settings remain available across sessions.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="how-it-works" class="section">
+      <div class="section-header">
+        <span class="eyebrow">How it works</span>
+        <h2 class="section-title">From data input to meaningful energy behavior.</h2>
+      </div>
+      <div class="work-grid">
+        <article class="work-card">
+          <h3>1. Define your home</h3>
+          <p>Add appliances, assign wattages, and decide which devices are on so the app can model real usage.</p>
+        </article>
+        <article class="work-card">
+          <h3>2. Simulate active load</h3>
+          <p>The prototype increases appliance runtime over time and calculates total energy based on active devices.</p>
+        </article>
+        <article class="work-card">
+          <h3>3. Respond to peak alerts</h3>
+          <p>When a challenge begins, users reduce load to avoid peaks and earn points for successfully lowering usage.</p>
+        </article>
+        <article class="work-card">
+          <h3>4. Measure rewards</h3>
+          <p>A built-in reward system tracks points, streaks, and badges to keep users motivated and engaged.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="tech" class="section section--dark">
+      <div class="section-header">
+        <span class="eyebrow">Technology stack</span>
+        <h2 class="section-title">A modern mobile toolkit for rapid prototype delivery.</h2>
+      </div>
+      <div class="stack-grid">
+        <article class="stack-card">
+          <h3>Expo / React Native</h3>
+          <p>Enables cross-platform mobile development and fast iteration for prototype builds.</p>
+        </article>
+        <article class="stack-card">
+          <h3>TypeScript</h3>
+          <p>Strong typing keeps the codebase maintainable and expressive for data-driven app logic.</p>
+        </article>
+        <article class="stack-card">
+          <h3>Zustand</h3>
+          <p>Lightweight state management powers app state, challenge flow, and persistent settings.</p>
+        </article>
+        <article class="stack-card">
+          <h3>React Navigation</h3>
+          <p>Structured page navigation provides a seamless mobile experience across the prototype screens.</p>
+        </article>
+        <article class="stack-card">
+          <h3>AsyncStorage</h3>
+          <p>Local persistence keeps user choices and progress available between sessions.</p>
+        </article>
+        <article class="stack-card">
+          <h3>Charts & SVG</h3>
+          <p>Visual components display insights and breakdowns with clear, elegant energy metrics.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="benefits" class="section">
+      <div class="section-header">
+        <span class="eyebrow">Why it matters</span>
+        <h2 class="section-title">Built to drive adoption, savings, and trust.</h2>
+      </div>
+      <div class="benefits-grid">
+        <article class="benefit-card">
+          <h3>Make energy personal</h3>
+          <p>Users move from abstract kilowatt-hours to real appliance impact and cost visibility.</p>
+        </article>
+        <article class="benefit-card">
+          <h3>Encourage better habits</h3>
+          <p>Peak event prompts and rewards create a motivating feedback loop for behavior change.</p>
+        </article>
+        <article class="benefit-card">
+          <h3>Speed up product validation</h3>
+          <p>Use the prototype to gather feedback quickly in hackathons, stakeholder demos, and user tests.</p>
+        </article>
+        <article class="benefit-card">
+          <h3>Deliver a modern demo</h3>
+          <p>The polished UI and clear data storytelling make energy concepts easier to understand and sell.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="demo" class="section section--dark">
+      <div class="section-header">
+        <span class="eyebrow">Screenshots</span>
+        <h2 class="section-title">Preview the app experience</h2>
+      </div>
+      <div class="demo-grid">
+        <article class="demo-card">
+          <h3>Dashboard view</h3>
+          <p style="margin: 0; color: #94b3d9; font-size: 0.9rem; position: relative; z-index: 2;">Real-time energy tracking and cost projection</p>
+        </article>
+        <article class="demo-card">
+          <h3>Challenge mode</h3>
+          <p style="margin: 0; color: #94b3d9; font-size: 0.9rem; position: relative; z-index: 2;">Respond to peak alerts and earn points</p>
+        </article>
+        <article class="demo-card">
+          <h3>Insights panel</h3>
+          <p style="margin: 0; color: #94b3d9; font-size: 0.9rem; position: relative; z-index: 2;">Breakdown of energy usage by device</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="trust" class="section">
+      <div class="section-header">
+        <span class="eyebrow">Testimonials</span>
+        <h2 class="section-title">Trusted by energy innovators</h2>
+      </div>
+      <div class="testimonial-grid">
+        <article class="testimonial-card">
+          <p>“PowerPulse makes household energy use feel actionable and rewarding. It’s perfect for product showcases that need instant customer impact.”</p>
+          <div class="testimonial-meta">Senior UX designer, clean energy startup</div>
+        </article>
+        <article class="testimonial-card">
+          <p>“This prototype turns complex peak management into a simple experience. It’s a great foundation for any utility or smart home pilot.”</p>
+          <div class="testimonial-meta">Innovation lead, utilities program</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="faq" class="section section--dark">
+      <div class="section-header">
+        <span class="eyebrow">FAQ</span>
+        <h2 class="section-title">Common questions answered</h2>
+      </div>
+      <div class="faq-grid">
+        <article class="faq-card">
+          <h3>What does PowerPulse prototype demonstrate?</h3>
+          <p>It showcases a mobile energy coaching flow with appliance tracking, peak event challenges, cost estimates, and reward mechanics.</p>
+        </article>
+        <article class="faq-card">
+          <h3>Is this built as a real app?</h3>
+          <p>Yes. It is a working Expo/React Native prototype that can be launched on mobile devices for demos and testing.</p>
+        </article>
+        <article class="faq-card">
+          <h3>Can it simulate energy savings?</h3>
+          <p>Absolutely. The app calculates usage and points based on appliance activity, making savings visible through simulated behavior.</p>
+        </article>
+        <article class="faq-card">
+          <h3>Who benefits most from this prototype?</h3>
+          <p>Energy teams, hackathon projects, and product designers who want a strong demo for home energy awareness.</p>
+        </article>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="brand">PowerPulse</div>
+        <div class="social-links">
+          <a href="#">GitHub</a>
+          <a href="#">Live demo</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+      <div class="newsletter">
+        <span>Ready to launch your energy demo?</span>
+        <a href="#contact">Get in touch</a>
+      </div>
+    </footer>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

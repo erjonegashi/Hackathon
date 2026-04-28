@@ -1,0 +1,259 @@
+:root {
+  color-scheme: dark;
+  color: #f7fbff;
+  background: #07111f;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, rgba(77, 163, 255, 0.18), transparent 30%),
+    linear-gradient(180deg, #08121d 0%, #061117 100%);
+  color: #e8f0ff;
+}
+
+.page {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.8rem;
+  color: #84a6ff;
+  margin: 0 0 12px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+  gap: 32px;
+  align-items: center;
+  padding: 40px 0 60px;
+}
+
+.hero__content {
+  max-width: 520px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(3rem, 6vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.hero__text {
+  margin: 24px 0 32px;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  max-width: 580px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 14px 24px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 140ms ease, background-color 140ms ease, color 140ms ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button--primary {
+  background: linear-gradient(135deg, #4da3ff, #73e39d);
+  color: #07111f;
+}
+
+.button--ghost {
+  color: #e8f0ff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.hero__graphic {
+  display: flex;
+  justify-content: center;
+}
+
+.device {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 34px;
+  background: linear-gradient(180deg, rgba(45, 85, 160, 0.24), rgba(16, 31, 61, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
+  padding: 24px;
+}
+
+.device__screen {
+  border-radius: 26px;
+  background: radial-gradient(circle at top, rgba(77, 163, 255, 0.16), transparent 55%),
+    linear-gradient(180deg, #0c182d 0%, #08121d 100%);
+  min-height: 420px;
+  padding: 28px;
+  display: grid;
+  gap: 20px;
+}
+
+.stat {
+  display: grid;
+  gap: 8px;
+}
+
+.stat__value {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.stat__label {
+  color: #91a8d4;
+  font-size: 1rem;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 10px 14px;
+  border-radius: 999px;
+  display: inline-flex;
+  font-weight: 700;
+  color: #d3e6ff;
+  width: fit-content;
+}
+
+.section {
+  padding: 36px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.section--dark {
+  background: rgba(15, 25, 45, 0.82);
+  border-radius: 28px;
+  padding: 40px 32px;
+}
+
+.section__intro {
+  max-width: 680px;
+}
+
+.section__intro h2 {
+  margin: 0;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.05;
+}
+
+.section__text {
+  margin-top: 18px;
+  color: #b7c6e6;
+  line-height: 1.8;
+}
+
+.cards {
+  margin-top: 28px;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 26px;
+  min-height: 160px;
+}
+
+.card h3 {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+}
+
+.card p {
+  margin: 0;
+  line-height: 1.75;
+  color: #c7d5f2;
+}
+
+.steps {
+  margin-top: 30px;
+  display: grid;
+  gap: 18px;
+}
+
+.step {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 22px;
+}
+
+.step h3 {
+  margin: 0 0 12px;
+}
+
+.step p {
+  margin: 0;
+  color: #b7c6e6;
+  line-height: 1.75;
+}
+
+.cta-card {
+  margin-top: 28px;
+  border-radius: 24px;
+  padding: 30px;
+  background: linear-gradient(180deg, rgba(77, 163, 255, 0.08), rgba(36, 58, 106, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cta-card h3 {
+  margin: 0 0 12px;
+}
+
+.footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  color: #7f9cc1;
+  font-size: 0.95rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero__graphic {
+    order: -1;
+  }
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 24px 16px 32px;
+  }
+
+  .button {
+    width: 100%;
+  }
+}

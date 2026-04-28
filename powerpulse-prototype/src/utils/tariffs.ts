@@ -8,7 +8,7 @@ export const TARIFFS = {
     firstBlockEurPerKWh: 0.0905,
     secondBlockEurPerKWh: 0.1543,
     startMinute: 8 * 60, // 08:00
-    endMinute: 23 * 60, // 23:00
+    endMinute: 22 * 60, // 22:00
   },
   night: {
     firstBlockLimitKWh: 800,
@@ -43,6 +43,6 @@ export function estimateCostEur(params: {
 }
 
 export function bestTimeSuggestion(): string {
-  return 'Best time to run heavy appliances: night tariff (23:00–08:00).';
+  return 'Best time to run heavy appliances: night tariff (22:00–08:00).';
 }
 
