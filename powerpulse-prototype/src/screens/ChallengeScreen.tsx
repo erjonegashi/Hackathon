@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAppStore } from '../store/useAppStore';
 import { Card } from '../components/Card';
+import { calculateChallengeEnergy } from '../utils/challengeEnergy';
 
 function clamp01(x: number) {
   return Math.max(0, Math.min(1, x));
@@ -15,7 +16,41 @@ export function ChallengeScreen() {
   const start = useAppStore((s) => s.startChallenge);
   const tryComplete = useAppStore((s) => s.completeChallengeIfEligible);
   const currentLoad = useAppStore((s) => s.getTotalLoadW());
+  const monthToDateKWh = useAppStore((s) => s.monthToDateKWh);
   const [confetti, setConfetti] = useState(false);
+  
+  // Real-time energy tracking
+  const [challengeKWh, setChallengeKWh] = useState(0);
+  const [challengeCostEur, setChallengeCostEur] = useState(0);
+  const [currentTariff, setCurrentTariff] = useState<'day' | 'night'>('day');
+
+  // Update energy consumption every second when challenge is active
+  useEffect(() => {
+    if (challenge.status !== 'active') {
+      setChallengeKWh(0);
+      setChallengeCostEur(0);
+      return;
+    }
+
+    // Update immediately on mount
+    const updateEnergy = () => {
+      const { kWh, costEur, currentTariff: tariff } = calculateChallengeEnergy({
+        startedAt: challenge.startedAt,
+        currentLoadW: currentLoad,
+        monthToDateKWh,
+      });
+      setChallengeKWh(kWh);
+      setChallengeCostEur(costEur);
+      setCurrentTariff(tariff);
+    };
+
+    updateEnergy();
+
+    // Update every second while active
+    const interval = setInterval(updateEnergy, 1000);
+
+    return () => clearInterval(interval);
+  }, [challenge.status, challenge.startedAt, currentLoad, monthToDateKWh]);
 
   const targetLoad = useMemo(
     () => Math.max(0, challenge.baselineLoadW - challenge.targetReductionW),
@@ -105,6 +140,39 @@ export function ChallengeScreen() {
           Reward: <Text style={styles.rewardStrong}>{challenge.pointsReward} points</Text> for reducing{' '}
           <Text style={styles.rewardStrong}>{challenge.targetReductionW}W</Text>.
         </Text>
+      </Card>
+
+      {challenge.status === 'active' && (
+        <Card style={{ gap: 10 }}>
+          <Text style={styles.sectionTitle}>Live Energy Consumption</Text>
+          <View style={styles.metricsRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.mLabel}>Accumulated</Text>
+              <Text style={styles.mValue}>{challengeKWh.toFixed(3)} kWh</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.mLabel}>Tariff</Text>
+              <Text
+                style={[
+                  styles.mValue,
+                  { color: currentTariff === 'night' ? '#16BD66' : '#FFD166' },
+                ]}
+              >
+                {currentTariff.toUpperCase()}
+              </Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.mLabel}>Est. Cost</Text>
+              <Text style={styles.mValue}>€{challengeCostEur.toFixed(3)}</Text>
+            </View>
+          </View>
+          <Text style={styles.smallNote}>
+            Updates in real-time based on current load and tariff period.
+          </Text>
+        </Card>
+      )}
+
+      <Card>
         <Pressable
           onPress={onStartSaving}
           style={({ pressed }) => [
@@ -171,6 +239,7 @@ const styles = StyleSheet.create({
   statusText: { fontWeight: '900', fontSize: 12 },
   hint: { color: '#7F92B8', fontWeight: '600' },
 
+  sectionTitle: { color: '#EAF0FF', fontWeight: '900', fontSize: 16 },
   rewardLine: { color: '#9DB0D8', fontWeight: '700' },
   rewardStrong: { color: '#EAF0FF', fontWeight: '900' },
   primaryBtn: {

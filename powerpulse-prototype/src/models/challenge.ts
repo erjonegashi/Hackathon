@@ -10,5 +10,10 @@ export type Challenge = {
   baselineLoadW: number;
   targetReductionW: number; // success if currentLoad <= baselineLoad - targetReductionW
   pointsReward: number;
+  
+  // Energy tracking during active challenge
+  challengeKWh?: number; // accumulated kWh since challenge started
+  challengeCostEur?: number; // accumulated cost with tariff switching
 };
+
 
