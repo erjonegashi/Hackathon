@@ -1,28 +1,30 @@
 import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { BarChart, PieChart, Grid, YAxis } from 'react-native-svg-charts';
 
 import { Card } from '../components/Card';
 import { useAppStore } from '../store/useAppStore';
 import { applianceEnergyKWh, todayEnergyKWh } from '../utils/energy';
+import type { Appliance } from '../models/appliance';
+
+type BreakdownItem = { name: string; kWh: number };
 
 function formatEur(v: number) {
   return `€${v.toFixed(2)}`;
 }
 
 export function InsightsScreen() {
-  const appliances = useAppStore((s) => s.appliances);
-  const todayKWh = useAppStore((s) => s.getTodayKWh());
-  const estTodayCost = useAppStore((s) => s.getEstimatedCostEurToday());
-  const most = useAppStore((s) => s.getMostConsumingAppliance());
+  const appliances = useAppStore((s: any) => s.appliances);
+  const todayKWh = useAppStore((s: any) => s.getTodayKWh());
+  const estTodayCost = useAppStore((s: any) => s.getEstimatedCostEurToday());
+  const most = useAppStore((s: any) => s.getMostConsumingAppliance());
 
   const width = Dimensions.get('window').width;
 
   const breakdown = useMemo(() => {
-    const items = appliances
-      .map((a) => ({ name: a.name, kWh: applianceEnergyKWh(a) }))
-      .filter((x) => x.kWh > 0.0001)
-      .sort((a, b) => b.kWh - a.kWh)
+    const items: BreakdownItem[] = appliances
+      .map((a: Appliance) => ({ name: a.name, kWh: applianceEnergyKWh(a) }))
+      .filter((x: BreakdownItem) => x.kWh > 0.0001)
+      .sort((a: BreakdownItem, b: BreakdownItem) => b.kWh - a.kWh)
       .slice(0, 6);
     return items;
   }, [appliances]);
@@ -33,7 +35,6 @@ export function InsightsScreen() {
       key: b.name,
       value: b.kWh,
       svg: { fill: colors[i % colors.length] },
-      arc: { outerRadius: '100%', padAngle: 0.02 },
     }));
   }, [breakdown]);
 
@@ -58,27 +59,6 @@ export function InsightsScreen() {
 
       <Card style={{ gap: 10 }}>
         <Text style={styles.sectionTitle}>Daily usage (last 7 days)</Text>
-        <View style={{ flexDirection: 'row', height: chartHeight }}>
-          <YAxis
-            data={last7}
-            contentInset={{ top: 10, bottom: 10 }}
-            svg={{ fill: '#7F92B8', fontSize: 10 }}
-            numberOfTicks={4}
-            formatLabel={(v: number) => `${v}`}
-          />
-          <View style={{ flex: 1, marginLeft: 10 }}>
-            <BarChart
-              style={{ height: chartHeight, width: contentWidth - 40 }}
-              data={last7}
-              svg={{ fill: '#4DA3FF' }}
-              spacingInner={0.4}
-              contentInset={{ top: 10, bottom: 10 }}
-              yMin={0}
-            >
-              <Grid svg={{ stroke: 'rgba(127,146,184,0.18)' }} />
-            </BarChart>
-          </View>
-        </View>
         <Text style={styles.note}>
           Today: <Text style={styles.strong}>{todayKWh.toFixed(2)} kWh</Text> · Est cost:{' '}
           <Text style={styles.strong}>{formatEur(estTodayCost)}</Text>
@@ -87,23 +67,13 @@ export function InsightsScreen() {
 
       <Card style={{ gap: 10 }}>
         <Text style={styles.sectionTitle}>Appliance breakdown (today)</Text>
-        {pieData.length ? (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <PieChart
-              style={{ height: 140, width: 140 }}
-              data={pieData}
-              innerRadius={14}
-              outerRadius={65}
-              padAngle={0.02}
-              sort={(a: any, b: any) => b.value - a.value}
-            />
-            <View style={{ flex: 1, gap: 6 }}>
-              {breakdown.map((b) => (
-                <Text key={b.name} style={styles.legend}>
-                  {b.name}: <Text style={styles.strong}>{b.kWh.toFixed(2)} kWh</Text>
-                </Text>
-              ))}
-            </View>
+        {breakdown.length ? (
+          <View style={{ gap: 6 }}>
+            {breakdown.map((b) => (
+              <Text key={b.name} style={styles.legend}>
+                {b.name}: <Text style={styles.strong}>{b.kWh.toFixed(2)} kWh</Text>
+              </Text>
+            ))}
           </View>
         ) : (
           <Text style={styles.note}>No usage yet. Turn appliances ON to generate insights.</Text>

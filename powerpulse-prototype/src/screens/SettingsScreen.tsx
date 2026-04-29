@@ -34,7 +34,7 @@ export function SettingsScreen() {
           <Text style={styles.note}>Peak alerts and saving reminders.</Text>
         </View>
         <Switch
-          value={notificationsEnabled}
+          value={Boolean(notificationsEnabled)}
           onValueChange={setNotificationsEnabled}
           trackColor={{ false: '#22304A', true: 'rgba(77,163,255,0.35)' }}
           thumbColor={notificationsEnabled ? '#4DA3FF' : '#9DB0D8'}

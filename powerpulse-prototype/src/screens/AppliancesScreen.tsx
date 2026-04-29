@@ -64,7 +64,7 @@ export function AppliancesScreen() {
           </Text>
         </View>
         <Switch
-          value={item.isOn}
+          value={Boolean(item.isOn)}
           onValueChange={() => toggle(item.id)}
           trackColor={{ false: '#22304A', true: 'rgba(22,189,102,0.35)' }}
           thumbColor={item.isOn ? '#16BD66' : '#9DB0D8'}
@@ -109,7 +109,7 @@ export function AppliancesScreen() {
           <View style={{ flex: 1 }}>
             <Text style={styles.smallLabel}>Name</Text>
             <TextInput
-              value={name}
+              value={name ?? ''}
               onChangeText={setName}
               placeholder="e.g., Heater"
               placeholderTextColor="#6E83AD"
@@ -119,7 +119,7 @@ export function AppliancesScreen() {
           <View style={{ width: 120 }}>
             <Text style={styles.smallLabel}>W (watts)</Text>
             <TextInput
-              value={watts}
+              value={watts ?? ''}
               onChangeText={setWatts}
               keyboardType="numeric"
               placeholder="500"
