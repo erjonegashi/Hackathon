@@ -1,21 +1,14 @@
 import React, { useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useAppStore } from '../store/useAppStore';
-import { Card } from '../components/Card';
-import { Metric } from '../components/Metric';
-import { UsagePill } from '../components/UsagePill';
+import { Card } from '../components/Card';    
+import { Metric } from '../components/Metric';  
 import { bestTimeSuggestion, getTariffPeriod } from '../utils/tariffs';
 
 function formatEur(v: number) {
   return `€${v.toFixed(2)}`;
-}
-
-function usageLevelFromLoad(loadW: number) {
-  // Simple heuristic for the prototype.
-  if (loadW >= 1500) return 'high' as const;
-  return 'low' as const;
 }
 
 export function HomeScreen() {
@@ -26,108 +19,99 @@ export function HomeScreen() {
   const costEur = useAppStore((s) => s.getEstimatedCostEurToday());
   const tariff = useMemo(() => getTariffPeriod(), []);
 
+  const isHighLoad = totalLoad >= 1500;
+
   const active = useMemo(
     () => appliances.filter((a) => a.isOn).sort((a, b) => b.wattage - a.wattage),
     [appliances]
   );
 
-  const pillLevel = usageLevelFromLoad(totalLoad);
-
   useEffect(() => {
-    // Simulate time passing while the app is open.
     const id = setInterval(() => tickMinute(), 60 * 1000);
     return () => clearInterval(id);
   }, [tickMinute]);
 
-  return (
-    <View style={styles.screen}>
-      <Text style={styles.title}>PowerPulse Kosovo</Text>
-      <Text style={styles.subtitle}>Save power. Earn points. Beat peak events.</Text>
+  const ListHeader = (
+    <View style={styles.headerContent}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>PowerPulse</Text>
+        <Text style={styles.subtitle}>Kosovo Energy Monitor</Text>
+      </View>
 
-      <Card style={styles.banner}>
-        <View style={styles.bannerRow}>
-          <Ionicons name="alert-circle" size={18} color="#FFD166" />
-          <Text style={styles.bannerText}>
-            Peak Alert (mock): reduce load during 19:00–20:00.
+      {/* Hero load card */}
+      <Card style={styles.heroCard}>
+        <Text style={styles.heroLabel}>Current Load</Text>
+        <Text style={[styles.heroValue, isHighLoad && styles.heroValueHigh]}>
+          {totalLoad.toFixed(0)} <Text style={styles.heroUnit}>W</Text>
+        </Text>
+        <View style={[styles.statusBadge, isHighLoad ? styles.badgeHigh : styles.badgeLow]}>
+          <Ionicons
+            name={isHighLoad ? 'warning' : 'checkmark-circle'}
+            size={13}
+            color={isHighLoad ? '#FF4D6D' : '#16BD66'}
+          />
+          <Text style={[styles.badgeText, isHighLoad ? styles.badgeTextHigh : styles.badgeTextLow]}>
+            {isHighLoad ? 'High usage' : 'Low usage'}
           </Text>
         </View>
       </Card>
 
-      <Card style={styles.kpis}>
-        <View style={styles.kpiRow}>
-          <Metric
-            label="Current load"
-            value={`${totalLoad.toFixed(0)} W`}
-            color={pillLevel === 'high' ? '#FF4D6D' : '#16BD66'}
-            hint="Live from active appliances"
-          />
-          <UsagePill
-            label={pillLevel === 'high' ? 'High usage' : 'Low usage'}
-            level={pillLevel}
-          />
-        </View>
+      {/* Stats row */}
+      <View style={styles.statsRow}>
+        <Card style={styles.statCard}>
+          <Text style={styles.statLabel}>Today</Text>
+          <Text style={styles.statValue}>{todayKWh.toFixed(2)}</Text>
+          <Text style={styles.statUnit}>kWh</Text>
+        </Card>
+        <Card style={styles.statCard}>
+          <Text style={styles.statLabel}>Est. Cost</Text>
+          <Text style={styles.statValue}>{formatEur(costEur)}</Text>
+          <Text style={styles.statUnit}>today</Text>
+        </Card>
+        <Card style={styles.statCard}>
+          <Text style={styles.statLabel}>Tariff</Text>
+          <Text style={styles.statValue}>{tariff === 'day' ? 'DAY' : 'NIGHT'}</Text>
+          <Text style={styles.statUnit}>{tariff === 'day' ? '08–23h' : '23–08h'}</Text>
+        </Card>
+      </View>
 
-        <View style={styles.kpiGrid}>
-          <Card style={styles.kpiMini}>
-            <Metric label="Today" value={`${todayKWh.toFixed(2)} kWh`} hint="Simulated" />
-          </Card>
-          <Card style={styles.kpiMini}>
-            <Metric label="Est. cost" value={formatEur(costEur)} hint="Tariff + blocks" />
-          </Card>
-          <Card style={styles.kpiMini}>
-            <Metric
-              label="Tariff"
-              value={tariff === 'day' ? 'DAY' : 'NIGHT'}
-              hint={tariff === 'day' ? '08:00–23:00' : '23:00–08:00'}
-            />
-          </Card>
-        </View>
+      {/* Suggestion */}
+      <Text style={styles.suggestion}>{bestTimeSuggestion()}</Text>
 
-        <Text style={styles.suggestion}>{bestTimeSuggestion()}</Text>
-      </Card>
-
+      {/* Active appliances section header */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Active appliances</Text>
         <Text style={styles.sectionMeta}>{active.length} ON</Text>
       </View>
-
-      <FlatList
-        data={active}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ gap: 10, paddingBottom: 24 }}
-        renderItem={({ item }) => (
-          <Card>
-            <View style={styles.itemRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemSub}>{item.wattage} W</Text>
-              </View>
-              <View style={styles.tag}>
-                <Ionicons name="power" size={14} color="#16BD66" />
-                <Text style={styles.tagText}>ON</Text>
-              </View>
-            </View>
-          </Card>
-        )}
-        ListEmptyComponent={
-          <Card>
-            <Text style={styles.emptyText}>
-              No active appliances. Turn something ON in Appliances.
-            </Text>
-          </Card>
-        }
-      />
-
-      <Pressable
-        onPress={() => {
-          // Quick UX: pretend the tariff label should be refreshed. (Tariff is time-based.)
-        }}
-        style={({ pressed }) => [styles.fab, pressed ? { opacity: 0.85 } : null]}
-      >
-        <Ionicons name="refresh" size={18} color="#0B1220" />
-        <Text style={styles.fabText}>Refresh</Text>
-      </Pressable>
     </View>
+  );
+
+  return (
+    <FlatList
+      style={styles.screen}
+      data={active}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={styles.listContent}
+      ListHeaderComponent={ListHeader}
+      renderItem={({ item }) => (
+        <Card style={styles.itemCard}>
+          <View style={styles.itemRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemSub}>{item.wattage} W</Text>
+            </View>
+            <View style={styles.tag}>
+              <Ionicons name="power" size={13} color="#16BD66" />
+              <Text style={styles.tagText}>ON</Text>
+            </View>
+          </View>
+        </Card>
+      )}
+      ListEmptyComponent={
+        <Text style={styles.emptyText}>No active appliances — turn something on in Appliances.</Text>
+      }
+    />
   );
 }
 
@@ -135,56 +119,73 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: '#0B1220',
-    padding: 16,
-    gap: 12,
   },
-  title: { color: '#EAF0FF', fontSize: 24, fontWeight: '900' },
-  subtitle: { color: '#9DB0D8', marginTop: -8 },
-  banner: { borderColor: 'rgba(255, 209, 102, 0.45)' },
-  bannerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  bannerText: { color: '#EAF0FF', flex: 1, fontWeight: '600' },
+  headerContent: {
+    padding: 20,
+    gap: 14,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+    gap: 8,
+  },
+  itemCard: {},
 
-  kpis: { gap: 12 },
-  kpiRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  kpiGrid: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
-  kpiMini: { flexGrow: 1, flexBasis: '30%', padding: 12 },
-  suggestion: { color: '#7F92B8', marginTop: 2, fontWeight: '600' },
+  header: { gap: 2 },
+  title: { color: '#EAF0FF', fontSize: 26, fontWeight: '900', letterSpacing: -0.5 },
+  subtitle: { color: '#5A7099', fontSize: 13, fontWeight: '600' },
 
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 },
-  sectionTitle: { color: '#EAF0FF', fontSize: 16, fontWeight: '800' },
-  sectionMeta: { color: '#7F92B8', fontWeight: '700' },
+  /* Hero */
+  heroCard: { alignItems: 'center', paddingVertical: 28, gap: 10 },
+  heroLabel: { color: '#5A7099', fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  heroValue: { color: '#16BD66', fontSize: 52, fontWeight: '900', lineHeight: 58 },
+  heroValueHigh: { color: '#FF4D6D' },
+  heroUnit: { fontSize: 24, fontWeight: '600' },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  badgeLow: { backgroundColor: 'rgba(22,189,102,0.1)', borderColor: 'rgba(22,189,102,0.4)' },
+  badgeHigh: { backgroundColor: 'rgba(255,77,109,0.1)', borderColor: 'rgba(255,77,109,0.4)' },
+  badgeText: { fontSize: 12, fontWeight: '700' },
+  badgeTextLow: { color: '#16BD66' },
+  badgeTextHigh: { color: '#FF4D6D' },
 
+  /* Stats */
+  statsRow: { flexDirection: 'row', gap: 10 },
+  statCard: { flex: 1, alignItems: 'center', paddingVertical: 16, gap: 2 },
+  statLabel: { color: '#5A7099', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 },
+  statValue: { color: '#EAF0FF', fontSize: 18, fontWeight: '900' },
+  statUnit: { color: '#5A7099', fontSize: 11, fontWeight: '600' },
+
+  suggestion: { color: '#5A7099', fontSize: 13, fontWeight: '600', textAlign: 'center' },
+
+  /* Section */
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  sectionTitle: { color: '#EAF0FF', fontSize: 15, fontWeight: '800' },
+  sectionMeta: { color: '#5A7099', fontSize: 13, fontWeight: '700' },
+
+  /* Items */
   itemRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  itemName: { color: '#EAF0FF', fontWeight: '800', fontSize: 15 },
-  itemSub: { color: '#7F92B8', marginTop: 3 },
+  itemName: { color: '#EAF0FF', fontWeight: '700', fontSize: 14 },
+  itemSub: { color: '#5A7099', fontSize: 13, marginTop: 2 },
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 5,
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: 999,
-    backgroundColor: 'rgba(22, 189, 102, 0.14)',
-    borderColor: 'rgba(22, 189, 102, 0.5)',
+    backgroundColor: 'rgba(22,189,102,0.12)',
+    borderColor: 'rgba(22,189,102,0.45)',
     borderWidth: 1,
   },
-  tagText: { color: '#16BD66', fontWeight: '900', fontSize: 12 },
-  emptyText: { color: '#9DB0D8', fontWeight: '600' },
+  tagText: { color: '#16BD66', fontWeight: '800', fontSize: 11 },
 
-  fab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 16,
-    backgroundColor: '#4DA3FF',
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(77, 163, 255, 0.6)',
-  },
-  fabText: { color: '#0B1220', fontWeight: '900' },
+  emptyText: { color: '#5A7099', fontWeight: '600', textAlign: 'center', paddingVertical: 12 },
 });
-

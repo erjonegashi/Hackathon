@@ -6,6 +6,8 @@ import type { RootStackParamList } from './types';
 import { MainTabs } from './TabsNavigator';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 
+import { LoginScreen } from '../screens/LoginScreen';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const navTheme = {
@@ -33,6 +35,11 @@ export function RootNavigator() {
           name="Onboarding"
           component={OnboardingScreen}
           options={{ title: 'Welcome' }}
+        />
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ presentation: 'modal', headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

@@ -9,6 +9,11 @@ import { totalLoadW, todayEnergyKWh, applianceEnergyKWh } from '../utils/energy'
 import { estimateCostEur, getTariffPeriod } from '../utils/tariffs';
 import { toISODate } from '../utils/time';
 
+type User = {
+  name: string;
+  email: string;
+};
+
 type HouseholdProfile = {
   name: string;
   members: number;
@@ -27,6 +32,9 @@ type AppState = {
   // Rewards & challenges
   rewards: RewardsState;
   challenge: Challenge;
+
+  // Auth
+  user: User | null;
 
   // UI / settings
   notificationsEnabled: boolean;
@@ -50,6 +58,8 @@ type AppState = {
   completeChallengeIfEligible: () => boolean;
 
   setNotificationsEnabled: (v: boolean) => void;
+  login: (email: string, name: string) => void;
+  logout: () => void;
   resetAll: () => void;
 };
 
@@ -116,6 +126,7 @@ export const useAppStore = create<AppState>()(
       dailyHistory: [],
       rewards: initialRewards(),
       challenge: initialChallenge(),
+      user: null,
       notificationsEnabled: true,
 
       getTotalLoadW: () => totalLoadW(get().appliances),
@@ -270,6 +281,9 @@ export const useAppStore = create<AppState>()(
 
       setNotificationsEnabled: (v) => set({ notificationsEnabled: v }),
 
+      login: (email, name) => set({ user: { email, name } }),
+      logout: () => set({ user: null }),
+
       resetAll: () =>
         set(() => ({
           household: { name: 'My Home', members: 3 },
@@ -278,6 +292,7 @@ export const useAppStore = create<AppState>()(
           dailyHistory: [],
           rewards: initialRewards(),
           challenge: initialChallenge(),
+          user: null,
           notificationsEnabled: true,
         })),
     }),

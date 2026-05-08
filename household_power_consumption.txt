@@ -1,0 +1,65 @@
+Typical Appliances & Power Ratings
+How Many Watts Does A Washing Machine Use? | EnergySage
+Kosovo households use a variety of devices. Common appliances range from low-power LEDs (~5–15 W) to heavy loads (kilowatt-scale). For example, washing machines draw roughly 400–1,400 W
+, dishwashers about 1,800 W
+, and refrigerators 300–800 W
+ when running. TVs typically use 50–200 W
+, while an electric kettle is around 1,200–1,500 W
+. Smaller devices (lights, phones, laptops) use far less, but major appliances dominate consumption. Kosovo utility data note that laundry (mainly washers) accounts for ~8.7% of a home’s electricity bill, dishwashers ~7.8%, and the refrigerator ~4.8%
+. These figures guide our device inventory.
+
+Washing Machine: ~400–1,400 W (e.g. 900 W washer ⇒ ~140 kWh/year at 3x/week)
+.
+Dishwasher: ~1,800 W per cycle
+.
+Refrigerator: ~300–800 W compressor draw
+ (runs cyclically, ~1–1.5 kWh/day).
+Television (LED): ~50–200 W
+.
+Electric Kettle: ~1,200–1,500 W
+ (boiling ~1L).
+Lighting: ~5–15 W per LED bulb (incandescent ~60 W).
+Others: e.g. laptop (50–100 W), vacuum (~500–1,200 W), air conditioner (if present) (500–2,500 W).
+All devices’ power ratings (watts) are used to compute instantaneous load. For example, turning on a 1.5 kW kettle and a 50 W lamp yields 1,550 W. Multiplying by time gives kWh used. Using this inventory, we can model household power draw from “on/off” states of appliances.
+
+Kosovo Electricity Tariffs & Time-of-Use Rates
+Kosovo’s regulator (ERO) mandates time-of-use tariffs for homes
+. There are two slots: high (day) and low (night) tariff hours. High-tariff (day) periods are 07:00–22:00 (Oct–Mar) and 08:00–23:00 (Apr–Sep)
+; night hours outside these windows are low-tariff. Tariffs are tiered by consumption (via an 800 kWh/mo threshold) and by time-of-day
+. Under the latest rates (2025/26):
+
+Up to 800 kWh/mo: ~€0.0905/kWh at day rates.
+Above 800 kWh: ~€0.1543/kWh at day rates.
+Night (off-peak) rates (23:00–08:00): ~€0.0388/kWh (≤800 kWh) and €0.0728/kWh (>800 kWh)
+.
+A small fixed monthly fee per connection also applies
+. This tariff structure means that shifting usage into off-peak or keeping total consumption under 800 kWh has big savings. (Exact rates are set annually by ERO
+.)
+Grid Data & Demand Signals (KEDS/KOSTT)
+Kosovo’s grid is managed by KEDS (distribution) and KOSTT (transmission/market). Both issue public alerts but have no open consumer API. Key signals include:
+
+KOSTT Daily Load: The System Operator publishes real-time load data on its website and via the ENTSO-E Transparency Platform
+. This provides system-wide demand curves for every day.
+Peak Warnings: In winter 2025, KOSTT warned of record consumption and identified peak hours (9–12 h, 16–20 h, and 22–23 h)
+. They urged shifting appliance use to off-peak (night) times. KEDS similarly appeals to customers during grid crunch (e.g. a Nov. 2025 appeal cited record demand >1,400 MWh and asked for savings)
+.
+No Public API: There is no known public REST API for Kosovo grid data. A consumer app would rely on published forecasts or ENTSO-E/KOSTT data feeds and operator announcements to trigger demand-response events.
+Estimating Household Consumption from Device States
+We can build a simple model: track each device’s on/off status and power rating to compute household load. For instance, if a 600 W heater and a 100 W lamp are on, instant load is 700 W. Integrating over time yields energy (kWh). Established datasets help validate such models. For example, the UCI “Household Power Consumption” dataset provides sub-metered loads by category (e.g. kitchen appliances, laundry/fridge, water-heating/AC)
+. This shows how devices combine into total usage. Using it, we can calibrate realistic usage patterns (e.g. a wash cycle ~0.5–1 kWh). The app could let users input which appliances are running (or detect via smart plugs) and sum their known wattages to estimate real-time load and monthly total. It then computes savings as the difference between this estimate and a baseline (e.g. projected usage if the appliance had stayed on).
+
+Gamified DR Flow & Rewards Design
+We propose a game-like demand-response workflow based on proven pilot programs:
+
+OhmHour Challenges: When a peak event is predicted (e.g. 17:00–18:00), push a notification asking users to unplug or defer loads for one hour (“OhmHour”).
+Goals & Feedback: Show each user a personalized baseline vs. reduction target. Provide a live progress bar or dashboard tracking kWh saved. For example, Bidgely’s HomeBeat app displayed the user’s baseline and goal, real-time savings progress, and compared it to neighbors
+. Immediate feedback (e.g. green highlight, confetti) is given when targets are hit.
+Tiered Rewards: Convert saved energy (“negawatts”) into points or digital currency. Allow redemption for gift cards, tokens, or bill credits. Use tiered incentives to reward consistency: e.g. small reward for meeting the goal each event, with bonus for multi-event streaks. (In a 2016 Australian trial, participants saved ~30% during DR events, earning up to ~$25 per event, with tiered payouts encouraging sustained effort
+.)
+Community Leagues: Organize users into teams by building or neighborhood. Show leaderboards of total CO₂/kWh saved or points earned. This social competition boosts motivation.
+UI Rewards: Use engaging visuals (e.g. react-native-confetti-cannon) to celebrate achievements. For example, when a user hits a savings goal, trigger a confetti animation. This positive reinforcement (like game “level-up”) enhances engagement.
+Together, these elements create an engaging demand-response experience. By combining real-time device tracking (with Kosovo’s tariffs and grid alerts) and gamified incentives
+, the app empowers Kosovars to save electricity at peak times and earn rewards.
+
+Sources: Kosovo regulator and media for tariffs and grid data
+; international tech/utility sources and utility docs for appliance stats and gamification insights
